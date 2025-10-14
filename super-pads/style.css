@@ -94,3 +94,47 @@ button:hover { opacity: 0.8; }
   box-shadow: 0 0 20px #00ffea;
   transform: scale(1.05);
 }
+.volume-control {
+  margin-top: 10px;
+  text-align: center;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.volume-control input[type="range"] {
+  width: 200px;
+  accent-color: #00ffe0; /* slider color */
+}
+.pad-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+}
+
+.pad-volume {
+  width: 60px;
+  margin-top: 6px;
+  cursor: pointer;
+  accent-color: #00ff88; /* green slider */
+}
+.volume-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.volume-slider {
+  width: 80%;
+  accent-color: limegreen;
+}
+
+.volume-value {
+  font-size: 11px;
+  color: #bbb;
+  margin-top: 2px;
+  text-align: center;
+  opacity: 0.75;
+  font-weight: 500;
+}
