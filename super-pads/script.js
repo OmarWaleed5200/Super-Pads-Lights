@@ -1,146 +1,121 @@
-// =============================
-// SUPER PADS LIGHTS CLONE SCRIPT
-// =============================
+// === SUPER PADS LIGHTS CLONE ===
 
-// Get buttons
-const recordBtn = document.getElementById("record");
-const stopBtn = document.getElementById("stop");
-const playBtn = document.getElementById("play");
-const clearBtn = document.getElementById("clear");
-const loopBtn = document.getElementById("loop");
-
-// Pad and sound setup
+// Store key sounds and events
 const pads = document.querySelectorAll(".pad");
+const padVolumes = document.querySelectorAll(".pad-volume");
+const audios = document.querySelectorAll("audio");
+
 let recording = false;
 let recordedSequence = [];
 let startTime = 0;
 let loopEnabled = false;
-let loopInterval = null;
+let playbackTimeouts = [];
 
-// =============================
-// SOUND PLAYBACK
-// =============================
+// === Utility to play sound with per-pad volume ===
 function playSound(key) {
-  const audio = document.getElementById(key);
-  if (audio) {
-    audio.currentTime = 0;
-    audio.play();
-  }
-}
-
-// =============================
-// PAD GLOW ANIMATION
-// =============================
-function flashPad(key) {
+  const audio = document.querySelector(`audio[data-key="${key}"]`);
   const pad = document.querySelector(`.pad[data-key="${key}"]`);
-  if (pad) {
-    pad.classList.add("active");
-    setTimeout(() => pad.classList.remove("active"), 200);
-  }
-}
+  const padContainer = pad?.parentElement;
+  const volumeSlider = padContainer?.querySelector(".pad-volume");
 
-// =============================
-// RECORDING LOGIC
-// =============================
-pads.forEach((pad) => {
-  pad.addEventListener("click", () => handlePadPress(pad.dataset.key));
-});
+  if (!audio || !pad) return;
 
-document.addEventListener("keydown", (e) => {
-  const key = e.key.toLowerCase();
-  const pad = document.querySelector(`.pad[data-key="${key}"]`);
-  if (pad) handlePadPress(key);
-});
+  // Reset and set volume
+  audio.currentTime = 0;
+  audio.volume = volumeSlider ? volumeSlider.value : 1;
+  audio.play();
 
-function handlePadPress(key) {
-  playSound(key);
-  flashPad(key);
+  // Visual glow
+  pad.classList.add("active");
+  setTimeout(() => pad.classList.remove("active"), 150);
 
+  // If recording, push to recordedSequence
   if (recording) {
-    const time = performance.now() - startTime;
-    recordedSequence.push({ key, time });
+    const time = Date.now() - startTime;
+    recordedSequence.push({ key, time, volume: audio.volume });
   }
 }
 
-// =============================
-// RECORD BUTTON
-// =============================
-recordBtn.addEventListener("click", () => {
+// === Event Listeners for pads ===
+pads.forEach((pad) => {
+  pad.addEventListener("click", () => {
+    const key = pad.getAttribute("data-key");
+    playSound(key);
+  });
+});
+
+// === Keyboard controls ===
+window.addEventListener("keydown", (e) => {
+  const key = e.key.toUpperCase();
+  if (document.querySelector(`.pad[data-key="${key}"]`)) {
+    playSound(key);
+  }
+});
+
+// === Record ===
+document.querySelector(".record").addEventListener("click", () => {
   recordedSequence = [];
   recording = true;
-  startTime = performance.now();
-  recordBtn.classList.add("active");
-  console.log("Recording started...");
+  startTime = Date.now();
+  console.log("Recording started");
 });
 
-// =============================
-// STOP BUTTON
-// =============================
-stopBtn.addEventListener("click", () => {
+// === Stop ===
+document.querySelector(".stop").addEventListener("click", () => {
   recording = false;
-  recordBtn.classList.remove("active");
-  console.log("Recording stopped.");
+  loopEnabled = false;
+  playbackTimeouts.forEach(clearTimeout);
+  console.log("Stopped");
 });
 
-// =============================
-// PLAY SEQUENCE
-// =============================
-function playSequence(loop = false) {
+// === Play ===
+document.querySelector(".play").addEventListener("click", () => {
   if (recordedSequence.length === 0) return;
 
-  recordedSequence.forEach((event) => {
-    setTimeout(() => {
-      playSound(event.key);
-      flashPad(event.key);
-    }, event.time);
+  recording = false;
+  playbackTimeouts.forEach(clearTimeout);
+
+  recordedSequence.forEach((note) => {
+    const timeout = setTimeout(() => {
+      const audio = document.querySelector(`audio[data-key="${note.key}"]`);
+      const pad = document.querySelector(`.pad[data-key="${note.key}"]`);
+      if (audio) {
+        audio.currentTime = 0;
+        audio.volume = note.volume;
+        audio.play();
+      }
+      if (pad) {
+        pad.classList.add("active");
+        setTimeout(() => pad.classList.remove("active"), 150);
+      }
+    }, note.time);
+    playbackTimeouts.push(timeout);
   });
 
-  // If loop is enabled, repeat the sequence
-  if (loop) {
-    const totalDuration = recordedSequence[recordedSequence.length - 1].time;
-    clearInterval(loopInterval);
-    loopInterval = setInterval(() => {
-      recordedSequence.forEach((event) => {
-        setTimeout(() => {
-          playSound(event.key);
-          flashPad(event.key);
-        }, event.time);
-      });
-    }, totalDuration + 500);
+  // Loop if enabled
+  if (loopEnabled) {
+    const totalTime = recordedSequence[recordedSequence.length - 1].time;
+    const loopTimeout = setTimeout(() => {
+      document.querySelector(".play").click();
+    }, totalTime + 500);
+    playbackTimeouts.push(loopTimeout);
   }
-}
 
-// =============================
-// PLAY BUTTON
-// =============================
-playBtn.addEventListener("click", () => {
-  playSequence(loopEnabled);
+  console.log("Playing sequence");
 });
 
-// =============================
-// CLEAR BUTTON
-// =============================
-clearBtn.addEventListener("click", () => {
+// === Clear ===
+document.querySelector(".clear").addEventListener("click", () => {
   recordedSequence = [];
   recording = false;
-  clearInterval(loopInterval);
-  loopEnabled = false;
-  loopBtn.classList.remove("active");
-  console.log("Sequence cleared.");
+  playbackTimeouts.forEach(clearTimeout);
+  console.log("Sequence cleared");
 });
 
-// =============================
-// LOOP BUTTON
-// =============================
-loopBtn.addEventListener("click", () => {
+// === Loop ===
+document.querySelector(".loop").addEventListener("click", () => {
   loopEnabled = !loopEnabled;
-  loopBtn.classList.toggle("active", loopEnabled);
-
-  if (loopEnabled) {
-    playSequence(true);
-    console.log("Loop mode: ON");
-  } else {
-    clearInterval(loopInterval);
-    console.log("Loop mode: OFF");
-  }
+  const loopBtn = document.querySelector(".loop");
+  loopBtn.style.backgroundColor = loopEnabled ? "#00ff88" : "#ffcc00";
+  console.log("Loop:", loopEnabled);
 });
