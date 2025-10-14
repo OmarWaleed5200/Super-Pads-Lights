@@ -1,65 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Super Pads Lights Clone</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Pads Lights Clone</title>
+<style>
+  body {
+    background-color: #0d0d0d;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2em;
+    margin-bottom: 15px;
+  }
+
+  .controls {
+    margin-bottom: 20px;
+  }
+
+  .controls button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .controls .record { background: #e74c3c; }
+  .controls .stop { background: #95a5a6; }
+  .controls .play { background: #2ecc71; }
+  .controls .clear { background: #9b59b6; }
+  .controls .loop { background: #f1c40f; color: #000; }
+
+  .pad-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    justify-items: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .pad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pad button {
+    width: 70px;
+    height: 70px;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .pad button:active {
+    background: #2ecc71;
+    transform: scale(0.95);
+    box-shadow: 0 0 15px #2ecc71;
+  }
+
+  .volume-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .volume-slider {
+    width: 80%;
+    accent-color: limegreen;
+  }
+
+  .volume-value {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 2px;
+    text-align: center;
+    opacity: 0.75;
+    font-weight: 500;
+  }
+</style>
 </head>
 <body>
-  <h1>Super Pads Lights Clone</h1>
 
-  <div class="controls">
-    <button id="record">Record</button>
-    <button id="stop">Stop</button>
-    <button id="play">Play</button>
-    <button id="clear">Clear</button>
-    <button id="loop">Loop</button>
-  </div>
+<h1>Super Pads Lights Clone</h1>
 
-  <div class="grid">
-    <div class="pad" data-key="q">Q</div>
-    <div class="pad" data-key="w">W</div>
-    <div class="pad" data-key="e">E</div>
-    <div class="pad" data-key="r">R</div>
+<div class="controls">
+  <button class="record">Record</button>
+  <button class="stop">Stop</button>
+  <button class="play">Play</button>
+  <button class="clear">Clear</button>
+  <button class="loop">Loop</button>
+</div>
 
-    <div class="pad" data-key="a">A</div>
-    <div class="pad" data-key="s">S</div>
-    <div class="pad" data-key="d">D</div>
-    <div class="pad" data-key="f">F</div>
+<div class="pad-grid" id="padGrid"></div>
 
-    <div class="pad" data-key="z">Z</div>
-    <div class="pad" data-key="x">X</div>
-    <div class="pad" data-key="c">C</div>
-    <div class="pad" data-key="v">V</div>
+<script>
+const keys = ['Q','W','E','R','A','S','D','F','Z','X','C','V','1','2','3','4'];
 
-    <div class="pad" data-key="1">1</div>
-    <div class="pad" data-key="2">2</div>
-    <div class="pad" data-key="3">3</div>
-    <div class="pad" data-key="4">4</div>
-  </div>
+const padGrid = document.getElementById('padGrid');
+let padVolumes = {};
 
-  <!-- AUDIO FILES -->
-  <audio id="q" src="sounds/kick.wav"></audio>
-  <audio id="w" src="sounds/snare.wav"></audio>
-  <audio id="e" src="sounds/hihat.wav"></audio>
-  <audio id="r" src="sounds/clap.wav"></audio>
+keys.forEach(key => {
+  const padDiv = document.createElement('div');
+  padDiv.classList.add('pad');
 
-  <audio id="a" src="sounds/openhat.wav"></audio>
-  <audio id="s" src="sounds/tom.wav"></audio>
-  <audio id="d" src="sounds/perc.wav"></audio>
-  <audio id="f" src="sounds/shaker.wav"></audio>
+  const button = document.createElement('button');
+  button.textContent = key;
 
-  <audio id="z" src="sounds/bass.wav"></audio>
-  <audio id="x" src="sounds/rim.wav"></audio>
-  <audio id="c" src="sounds/ride.wav"></audio>
-  <audio id="v" src="sounds/crash.wav"></audio>
+  const volumeContainer = document.createElement('div');
+  volumeContainer.classList.add('volume-container');
 
-  <audio id="1" src="sounds/vox1.wav"></audio>
-  <audio id="2" src="sounds/vox2.wav"></audio>
-  <audio id="3" src="sounds/vox3.wav"></audio>
-  <audio id="4" src="sounds/vox4.wav"></audio>
+  const slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = 0;
+  slider.max = 1;
+  slider.step = 0.01;
+  slider.value = 1;
+  slider.classList.add('volume-slider');
 
-  <script src="script.js"></script>
+  const valueLabel = document.createElement('div');
+  valueLabel.classList.add('volume-value');
+  valueLabel.textContent = slider.value;
+
+  slider.addEventListener('input', () => {
+    padVolumes[key] = parseFloat(slider.value);
+    valueLabel.textContent = slider.value;
+  });
+
+  volumeContainer.appendChild(slider);
+  volumeContainer.appendChild(valueLabel);
+  padDiv.appendChild(button);
+  padDiv.appendChild(volumeContainer);
+  padGrid.appendChild(padDiv);
+
+  // store default volume
+  padVolumes[key] = 1;
+});
+
+// Example sound setup (replace 'sounds/Q.mp3' with your actual files)
+keys.forEach(key => {
+  const audio = new Audio(`sounds/${key}.mp3`);
+  const padButton = [...document.querySelectorAll('.pad button')].find(b => b.textContent === key);
+
+  padButton.addEventListener('click', () => {
+    audio.currentTime = 0;
+    audio.volume = padVolumes[key];
+    audio.play();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key.toUpperCase() === key) {
+      padButton.click();
+    }
+  });
+});
+</script>
+
 </body>
 </html>
