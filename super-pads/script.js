@@ -1,131 +1,96 @@
-const pads = document.querySelectorAll(".pad");
-const recordButton = document.getElementById("record");
-const stopButton = document.getElementById("stop");
-const playButton = document.getElementById("play");
-const clearButton = document.getElementById("clear");
-const loopButton = document.getElementById("loop");
+// ==== CONFIGURATION ==== //
+const padKeys = [
+  'Q', 'W', 'E', 'R',
+  'A', 'S', 'D', 'F',
+  'Z', 'X', 'C', 'V',
+  '1', '2', '3', '4'
+];
 
-let isRecording = false;
-let isLooping = false;
-let startTime;
-let recordedNotes = [];
-let loopInterval;
+// Optional: your pad sounds (update with your real .wav/.mp3 file names)
+const padSounds = [
+  'sounds/kick.wav', 'sounds/snare.wav', 'sounds/hihat.wav', 'sounds/clap.wav',
+  'sounds/tom.wav', 'sounds/cowbell.wav', 'sounds/openhat.wav', 'sounds/shaker.wav',
+  'sounds/bass.wav', 'sounds/chord.wav', 'sounds/vocal.wav', 'sounds/perc.wav',
+  'sounds/synth1.wav', 'sounds/synth2.wav', 'sounds/fx1.wav', 'sounds/fx2.wav'
+];
 
-// 🥁 Key-to-sound map
-const padSounds = {
-  Q: "sounds/kick.wav",
-  W: "sounds/snare.wav",
-  E: "sounds/hihat.wav",
-  R: "sounds/clap.wav",
-  A: "sounds/tom1.wav",
-  S: "sounds/tom2.wav",
-  D: "sounds/tom3.wav",
-  F: "sounds/crash.wav",
-  Z: "sounds/openhat.wav",
-  X: "sounds/perc.wav",
-  C: "sounds/shaker.wav",
-  V: "sounds/rim.wav",
-  "1": "sounds/bass.wav",
-  "2": "sounds/synth1.wav",
-  "3": "sounds/synth2.wav",
-  "4": "sounds/vocal.wav"
-};
+// Each pad gets its own glow color
+const padColors = [
+  '#00ffff', '#ff007f', '#ff6600', '#33ff00',
+  '#ff0000', '#0099ff', '#ffcc00', '#9933ff',
+  '#00ffcc', '#ff3399', '#66ff00', '#ff9900',
+  '#33ccff', '#ff0066', '#99ff33', '#00ff66'
+];
 
-// 🎵 Play pad sound
-function playPad(pad) {
-  const key = pad.dataset.key.toUpperCase();
-  const soundPath = padSounds[key];
-  if (!soundPath) return;
+// ==== DOM SETUP ==== //
+const padContainer = document.createElement('div');
+padContainer.className = 'pad-grid';
+document.body.appendChild(padContainer);
 
-  const sound = new Audio(soundPath);
-  const volumeSlider = pad.querySelector(".volume-slider");
-  if (volumeSlider) sound.volume = parseFloat(volumeSlider.value);
+// Create pads dynamically
+padKeys.forEach((key, index) => {
+  const pad = document.createElement('div');
+  pad.className = 'pad';
+  pad.dataset.key = key.toLowerCase();
+  pad.style.setProperty('--glow-color', padColors[index]);
 
-  sound.currentTime = 0;
-  sound.play();
+  // Pad label
+  const label = document.createElement('span');
+  label.className = 'pad-label';
+  label.textContent = key;
+  pad.appendChild(label);
 
-  // Add glowing pulse animation
-  pad.classList.add("active", "pulsing");
+  // Volume slider
+  const slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = 0;
+  slider.max = 1;
+  slider.step = 0.01;
+  slider.value = 1;
+  slider.className = 'volume-slider';
+  pad.appendChild(slider);
 
-  // Record note if recording
-  if (isRecording) {
-    const time = Date.now() - startTime;
-    recordedNotes.push({ key, time, volume: sound.volume });
-  }
+  // Volume value
+  const volValue = document.createElement('div');
+  volValue.className = 'volume-value';
+  volValue.textContent = '1';
+  pad.appendChild(volValue);
+
+  padContainer.appendChild(pad);
+});
+
+// ==== EVENT HANDLING ==== //
+function playSound(key) {
+  const padIndex = padKeys.indexOf(key.toUpperCase());
+  if (padIndex === -1) return;
+
+  const pad = document.querySelector(`.pad[data-key="${key.toLowerCase()}"]`);
+  const volume = pad.querySelector('.volume-slider').value;
+
+  const audio = new Audio(padSounds[padIndex]);
+  audio.volume = volume;
+  audio.play();
+
+  // Animate pad glow
+  pad.classList.add('active');
+  setTimeout(() => pad.classList.remove('active'), 300);
 }
 
-// 💡 Stop glow when key released
-function stopGlow(pad) {
-  pad.classList.remove("pulsing", "active");
-}
-
-// 🧠 Handle key press and release
-document.addEventListener("keydown", e => {
-  const key = e.key.toUpperCase();
-  const pad = document.querySelector(`.pad[data-key="${key}"]`);
-  if (pad && !pad.classList.contains("active")) playPad(pad);
+document.addEventListener('keydown', (e) => playSound(e.key));
+document.querySelectorAll('.pad').forEach((pad) => {
+  pad.addEventListener('click', () => playSound(pad.dataset.key));
 });
 
-document.addEventListener("keyup", e => {
-  const key = e.key.toUpperCase();
-  const pad = document.querySelector(`.pad[data-key="${key}"]`);
-  if (pad) stopGlow(pad);
-});
-
-// 🖱️ Pad click
-pads.forEach(pad => {
-  pad.addEventListener("mousedown", () => playPad(pad));
-  pad.addEventListener("mouseup", () => stopGlow(pad));
-  pad.addEventListener("mouseleave", () => stopGlow(pad));
-});
-
-// 🔴 Record
-recordButton.addEventListener("click", () => {
-  recordedNotes = [];
-  isRecording = true;
-  startTime = Date.now();
-  recordButton.classList.add("recording");
-});
-
-// ⏹ Stop
-stopButton.addEventListener("click", () => {
-  isRecording = false;
-  recordButton.classList.remove("recording");
-});
-
-// ▶ Play
-playButton.addEventListener("click", () => {
-  if (recordedNotes.length === 0) return;
-
-  recordedNotes.forEach(note => {
-    setTimeout(() => {
-      const pad = document.querySelector(`.pad[data-key="${note.key}"]`);
-      if (pad) {
-        const sound = new Audio(padSounds[note.key]);
-        sound.volume = note.volume;
-        sound.play();
-        pad.classList.add("active");
-        setTimeout(() => pad.classList.remove("active"), 200);
-      }
-    }, note.time);
+// Update volume label
+document.querySelectorAll('.volume-slider').forEach((slider) => {
+  slider.addEventListener('input', (e) => {
+    e.target.nextElementSibling.textContent = e.target.value;
   });
-
-  if (isLooping) {
-    const duration = recordedNotes[recordedNotes.length - 1].time;
-    clearInterval(loopInterval);
-    loopInterval = setInterval(() => playButton.click(), duration);
-  }
 });
 
-// 🧹 Clear
-clearButton.addEventListener("click", () => {
-  recordedNotes = [];
-  clearInterval(loopInterval);
-});
-
-// 🔁 Loop
-loopButton.addEventListener("click", () => {
-  isLooping = !isLooping;
-  loopButton.classList.toggle("active", isLooping);
-  if (!isLooping) clearInterval(loopInterval);
-});
+// ==== BUTTONS (Optional Placeholder Logic) ==== //
+document.getElementById('recordBtn').addEventListener('click', () => alert('Recording...'));
+document.getElementById('stopBtn').addEventListener('click', () => alert('Stopped'));
+document.getElementById('playBtn').addEventListener('click', () => alert('Playing...'));
+document.getElementById('clearBtn').addEventListener('click', () => alert('Cleared'));
+document.getElementById('loopBtn').addEventListener('click', () => alert('Looping...'));
