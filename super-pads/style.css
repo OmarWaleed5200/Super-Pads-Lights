@@ -1,108 +1,59 @@
-/* === GLOBAL PAGE STYLE === */
 body {
-  background-color: #0a0a0a;
+  background: black;
   color: white;
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
+  font-family: Arial, sans-serif;
   text-align: center;
 }
 
-/* === HEADER === */
-h1 {
-  font-size: 2rem;
-  margin-top: 30px;
-}
-
-/* === CONTROL BUTTONS === */
-button {
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  margin: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-button:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
-}
-
-#recordBtn { background: #ff3030; color: white; }
-#stopBtn { background: #555; color: white; }
-#playBtn { background: #00c853; color: white; }
-#clearBtn { background: #a020f0; color: white; }
-#loopBtn { background: #ffeb3b; color: black; }
-
-/* === PAD GRID === */
 .pad-container {
   display: grid;
   grid-template-columns: repeat(4, 120px);
-  grid-gap: 30px;
+  grid-gap: 20px;
   justify-content: center;
-  margin: 50px auto;
-  width: fit-content;
+  margin-top: 40px;
 }
 
-/* === INDIVIDUAL PAD === */
 .pad {
-  width: 120px;
-  height: 120px;
-  border-radius: 16px;
-  background: linear-gradient(145deg, #1e1e1e, #121212);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: box-shadow 0.3s ease, transform 0.1s ease;
+  background: #111;
+  border-radius: 15px;
+  box-shadow: 0 0 10px #000;
+  padding: 15px;
+  transition: transform 0.2s ease, box-shadow 0.4s ease;
+  cursor: pointer;
   position: relative;
 }
 
-/* === ACTIVE PAD (ON PRESS) === */
+/* Smooth pulsing glow animation */
 .pad.active {
-  transform: scale(0.95);
-  box-shadow: 0 0 40px var(--pad-color);
+  box-shadow: 0 0 25px 8px var(--color);
+  transform: scale(1.05);
 }
 
-/* === PAD TEXT === */
-.pad-key {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 10px;
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 var(--glow-color);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px var(--glow-color),
+                0 0 50px var(--glow-color);
+    transform: scale(1.08);
+  }
+  100% {
+    box-shadow: 0 0 0 var(--glow-color);
+    transform: scale(1);
+  }
 }
 
-/* === SLIDER === */
+/* Slider color per pad */
 .volume-slider {
-  width: 80%;
-  accent-color: var(--pad-color);
+  width: 100%;
+  margin-top: 8px;
+  accent-color: var(--slider-color);
 }
 
 .volume-value {
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 14px;
+  margin-top: 3px;
 }
-
-/* === UNIQUE PAD GLOW COLORS === */
-.pad[data-key="Q"] { --pad-color: #00ffff; }
-.pad[data-key="W"] { --pad-color: #ff00ff; }
-.pad[data-key="E"] { --pad-color: #ffa500; }
-.pad[data-key="R"] { --pad-color: #00ff00; }
-
-.pad[data-key="A"] { --pad-color: #ff0000; }
-.pad[data-key="S"] { --pad-color: #00bfff; }
-.pad[data-key="D"] { --pad-color: #ff69b4; }
-.pad[data-key="F"] { --pad-color: #adff2f; }
-
-.pad[data-key="Z"] { --pad-color: #00ffff; }
-.pad[data-key="X"] { --pad-color: #ff00ff; }
-.pad[data-key="C"] { --pad-color: #ffa500; }
-.pad[data-key="V"] { --pad-color: #00ff00; }
-
-.pad[data-key="1"] { --pad-color: #ff0000; }
-.pad[data-key="2"] { --pad-color: #00bfff; }
-.pad[data-key="3"] { --pad-color: #ff69b4; }
-.pad[data-key="4"] { --pad-color: #adff2f; }
