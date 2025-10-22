@@ -1,96 +1,71 @@
-// ==== CONFIGURATION ==== //
-const padKeys = [
-  'Q', 'W', 'E', 'R',
-  'A', 'S', 'D', 'F',
-  'Z', 'X', 'C', 'V',
-  '1', '2', '3', '4'
-];
+// Super Pads Lights Clone - With Volume Control
+// by Omar + GPT-5
 
-// Optional: your pad sounds (update with your real .wav/.mp3 file names)
-const padSounds = [
-  'sounds/kick.wav', 'sounds/snare.wav', 'sounds/hihat.wav', 'sounds/clap.wav',
-  'sounds/tom.wav', 'sounds/cowbell.wav', 'sounds/openhat.wav', 'sounds/shaker.wav',
-  'sounds/bass.wav', 'sounds/chord.wav', 'sounds/vocal.wav', 'sounds/perc.wav',
-  'sounds/synth1.wav', 'sounds/synth2.wav', 'sounds/fx1.wav', 'sounds/fx2.wav'
-];
+// Map each pad key to its sound file
+const pads = {
+  q: "kick.wav",
+  w: "snare.wav",
+  e: "clap.wav",
+  r: "hat.wav",
+  a: "bass.wav",
+  s: "pad1.wav",
+  d: "pad2.wav",
+  f: "pad3.wav",
+  z: "pad4.wav",
+  x: "pad5.wav",
+  c: "pad6.wav",
+  v: "pad7.wav",
+  "1": "pad8.wav",
+  "2": "pad9.wav",
+  "3": "pad10.wav",
+  "4": "pad11.wav"
+};
 
-// Each pad gets its own glow color
-const padColors = [
-  '#00ffff', '#ff007f', '#ff6600', '#33ff00',
-  '#ff0000', '#0099ff', '#ffcc00', '#9933ff',
-  '#00ffcc', '#ff3399', '#66ff00', '#ff9900',
-  '#33ccff', '#ff0066', '#99ff33', '#00ff66'
-];
+document.addEventListener("DOMContentLoaded", () => {
+  const padElements = document.querySelectorAll(".pad");
 
-// ==== DOM SETUP ==== //
-const padContainer = document.createElement('div');
-padContainer.className = 'pad-grid';
-document.body.appendChild(padContainer);
+  padElements.forEach(pad => {
+    const key = pad.dataset.key;
+    const slider = pad.querySelector("input[type='range']");
+    const valueLabel = pad.querySelector("span");
 
-// Create pads dynamically
-padKeys.forEach((key, index) => {
-  const pad = document.createElement('div');
-  pad.className = 'pad';
-  pad.dataset.key = key.toLowerCase();
-  pad.style.setProperty('--glow-color', padColors[index]);
+    // Initialize volume display
+    slider.addEventListener("input", () => {
+      valueLabel.textContent = slider.value;
+    });
 
-  // Pad label
-  const label = document.createElement('span');
-  label.className = 'pad-label';
-  label.textContent = key;
-  pad.appendChild(label);
+    // Click to play sound
+    pad.addEventListener("click", () => {
+      playSound(key, slider.value);
+      animatePad(pad);
+    });
+  });
 
-  // Volume slider
-  const slider = document.createElement('input');
-  slider.type = 'range';
-  slider.min = 0;
-  slider.max = 1;
-  slider.step = 0.01;
-  slider.value = 1;
-  slider.className = 'volume-slider';
-  pad.appendChild(slider);
-
-  // Volume value
-  const volValue = document.createElement('div');
-  volValue.className = 'volume-value';
-  volValue.textContent = '1';
-  pad.appendChild(volValue);
-
-  padContainer.appendChild(pad);
-});
-
-// ==== EVENT HANDLING ==== //
-function playSound(key) {
-  const padIndex = padKeys.indexOf(key.toUpperCase());
-  if (padIndex === -1) return;
-
-  const pad = document.querySelector(`.pad[data-key="${key.toLowerCase()}"]`);
-  const volume = pad.querySelector('.volume-slider').value;
-
-  const audio = new Audio(padSounds[padIndex]);
-  audio.volume = volume;
-  audio.play();
-
-  // Animate pad glow
-  pad.classList.add('active');
-  setTimeout(() => pad.classList.remove('active'), 300);
-}
-
-document.addEventListener('keydown', (e) => playSound(e.key));
-document.querySelectorAll('.pad').forEach((pad) => {
-  pad.addEventListener('click', () => playSound(pad.dataset.key));
-});
-
-// Update volume label
-document.querySelectorAll('.volume-slider').forEach((slider) => {
-  slider.addEventListener('input', (e) => {
-    e.target.nextElementSibling.textContent = e.target.value;
+  // Keyboard press to play sound
+  document.addEventListener("keydown", e => {
+    const key = e.key.toLowerCase();
+    const pad = document.querySelector(`.pad[data-key="${key}"]`);
+    if (pad && pads[key]) {
+      const slider = pad.querySelector("input[type='range']");
+      playSound(key, slider.value);
+      animatePad(pad);
+    }
   });
 });
 
-// ==== BUTTONS (Optional Placeholder Logic) ==== //
-document.getElementById('recordBtn').addEventListener('click', () => alert('Recording...'));
-document.getElementById('stopBtn').addEventListener('click', () => alert('Stopped'));
-document.getElementById('playBtn').addEventListener('click', () => alert('Playing...'));
-document.getElementById('clearBtn').addEventListener('click', () => alert('Cleared'));
-document.getElementById('loopBtn').addEventListener('click', () => alert('Looping...'));
+// Play sound from /sounds/ folder
+function playSound(key, volume = 1) {
+  const soundFile = pads[key];
+  if (!soundFile) return;
+
+  const audio = new Audio(`sounds/${soundFile}`);
+  audio.volume = Math.min(Math.max(volume, 0), 2) / 2; // normalize (slider 0–2)
+  audio.currentTime = 0;
+  audio.play().catch(err => console.error(err));
+}
+
+// Add glow animation
+function animatePad(pad) {
+  pad.classList.add("active");
+  setTimeout(() => pad.classList.remove("active"), 200);
+}
