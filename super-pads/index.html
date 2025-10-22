@@ -4,110 +4,120 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Super Pads Lights Clone</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .controls {
+      margin-bottom: 15px;
+    }
+
+    button {
+      margin: 0 5px;
+      padding: 6px 12px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    .pad-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 120px);
+      gap: 20px;
+    }
+
+    .pad {
+      background: #111;
+      border-radius: 16px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.15s, box-shadow 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .pad .label {
+      font-size: 22px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    span {
+      display: block;
+      font-size: 14px;
+      margin-top: 3px;
+    }
+
+    /* Active glow effect */
+    .pad.active {
+      box-shadow: 0 0 25px 10px var(--color);
+      transform: scale(1.05);
+    }
+
+    /* Smooth pulsing idle glow */
+    .pad {
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 5px 0 var(--color); }
+      50% { box-shadow: 0 0 20px 6px var(--color); }
+    }
+  </style>
 </head>
 <body>
-  <h1>Super Pads Lights Clone</h1>
-
   <div class="controls">
-    <button id="recordBtn">Record</button>
-    <button id="stopBtn">Stop</button>
-    <button id="playBtn">Play</button>
-    <button id="clearBtn">Clear</button>
-    <button id="loopBtn">Loop</button>
+    <button id="record">Record</button>
+    <button id="stop">Stop</button>
+    <button id="play">Play</button>
+    <button id="clear">Clear</button>
+    <button id="loop">Loop</button>
   </div>
 
-  <div class="pad-container">
-    <!-- Row 1 -->
-    <div class="pad" data-key="Q">
-      <div class="pad-key">Q</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="W">
-      <div class="pad-key">W</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="E">
-      <div class="pad-key">E</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="R">
-      <div class="pad-key">R</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
+  <div class="pad-grid">
+    <div class="pad" data-key="q" style="--color:#ff4d4d;"><div class="label">Q</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="w" style="--color:#ff9933;"><div class="label">W</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="e" style="--color:#ffff66;"><div class="label">E</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="r" style="--color:#66ff66;"><div class="label">R</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
 
-    <!-- Row 2 -->
-    <div class="pad" data-key="A">
-      <div class="pad-key">A</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="S">
-      <div class="pad-key">S</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="D">
-      <div class="pad-key">D</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="F">
-      <div class="pad-key">F</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
+    <div class="pad" data-key="a" style="--color:#66ffff;"><div class="label">A</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="s" style="--color:#6699ff;"><div class="label">S</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="d" style="--color:#cc66ff;"><div class="label">D</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="f" style="--color:#ff66b2;"><div class="label">F</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
 
-    <!-- Row 3 -->
-    <div class="pad" data-key="Z">
-      <div class="pad-key">Z</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="X">
-      <div class="pad-key">X</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="C">
-      <div class="pad-key">C</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="V">
-      <div class="pad-key">V</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
+    <div class="pad" data-key="z" style="--color:#ff3333;"><div class="label">Z</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="x" style="--color:#ffaa33;"><div class="label">X</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="c" style="--color:#ffff33;"><div class="label">C</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="v" style="--color:#33ff77;"><div class="label">V</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
 
-    <!-- Row 4 -->
-    <div class="pad" data-key="1">
-      <div class="pad-key">1</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="2">
-      <div class="pad-key">2</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="3">
-      <div class="pad-key">3</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
-    <div class="pad" data-key="4">
-      <div class="pad-key">4</div>
-      <input type="range" min="0" max="1" step="0.01" value="1" class="volume-slider">
-      <div class="volume-value">1</div>
-    </div>
+    <div class="pad" data-key="1" style="--color:#33ccff;"><div class="label">1</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="2" style="--color:#6666ff;"><div class="label">2</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="3" style="--color:#9933ff;"><div class="label">3</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
+    <div class="pad" data-key="4" style="--color:#ff33cc;"><div class="label">4</div><input type="range" min="0" max="2" value="1" step="0.1"><span>1</span></div>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
 
